@@ -65,6 +65,14 @@ class CPU:
             self.registers[rd] = 1 if self.registers[rs] < self.registers[rt] else 0
             print(f"SLT: $r{rd} = ($r{rs} < $r{rt}) -> {self.registers[rd]}")
 
+        elif opcode == "BNE":
+            rs, rt, offset = instruction[1], instruction[2], instruction[3]
+            if self.registers[rs] != self.registers[rt]:  # Branch if not equal
+                self.pc += offset  # Update PC with offset
+                print(f"BNE: Branching to PC = {self.pc}")
+            else:
+                print(f"BNE: Not branching. $r{rs} == $r{rt}.")
+
         else:
             print(f"Unknown instruction: {instruction}")
 
@@ -73,16 +81,26 @@ class CPU:
 # Example usage
 cpu = CPU()
 
-# Sample instruction list (format: "OPCODE", Rd, Rs, Rt)
+# Sample instruction list with examples
 instructions = [
-    ("ADDI", 1, 2, 5),  # $r1 = $r2 + 5
-    ("SUBI", 3, 1, 2),  # $r3 = $r1 - 2
-    ("SLT", 4, 1, 3),   # $r4 = ($r1 < $r3)
+    ("ADD", 1, 2, 3),  # $r1 = $r2 + $r3 (Assuming $r2 = 10, $r3 = 5)
+    ("SUB", 4, 1, 2),  # $r4 = $r1 - $r2 (After ADD, $r1 = 15, $r2 = 10)
+    ("ADDI", 5, 4, 5),  # $r5 = $r4 + 5 (After SUB, $r4 = 5, so $r5 = 10)
+    ("SUBI", 6, 5, 3),  # $r6 = $r5 - 3 (After ADDI, $r5 = 10, so $r6 = 7)
+    ("SLT", 7, 2, 3),   # $r7 = ($r2 < $r3) (Comparing $r2 = 10, $r3 = 5, $r7 should be 0)
+    ("BNE", 1, 2, 2),   # If $r1 != $r2, branch to instruction 2
+    ("SUBI", 3, 1, 2),  # $r3 = $r1 - 2 (Should be skipped if BNE is taken)
+    ("BNE", 1, 2, -2),  # If $r1 != $r2, branch back to instruction 2 (loop)
+    ("LW", 8, 0, 0),    # $r8 = MEM[$r0 + 0] (Load from address 0)
+    ("SW", 8, 0, 0),    # MEM[$r0 + 0] = $r8 (Store $r8 at address 0)
 ]
 
 # Initialize registers with some values for testing
+cpu.registers[0] = 0  # $r0 is usually hardcoded to 0
 cpu.registers[2] = 10  # Set $r2 = 10
 cpu.registers[3] = 5   # Set $r3 = 5
+cpu.registers[4] = 15  # Set $r4 = 15 (example value for ADD)
+cpu.registers[5] = 10  # Set $r5 = 10 (example value for ADDI)
 
 # Fetch and execute instructions
 while True:  # Continuously fetch and execute until no more instructions
