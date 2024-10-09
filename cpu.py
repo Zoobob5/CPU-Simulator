@@ -38,6 +38,33 @@ class CPU:
             self.registers[rd] = self.registers[rs] - self.registers[rt]
             print(f"SUB: $r{rd} = $r{rs} - $r{rt} -> {self.registers[rd]}")
 
+        elif opcode == "LW":
+            rt, offset, rs = instruction[1], instruction[2], instruction[3]
+            address = self.registers[rs] + offset
+            self.registers[rt] = self.memo[address]
+            print(f"LW: $r{rt} = MEM[{address}] -> {self.registers[rt]}")
+
+        elif opcode == "SW":
+            rt, offset, rs = instruction[1], instruction[2], instruction[3]
+            address = self.registers[rs] + offset
+            self.memo[address] = self.registers[rt]
+            print(f"SW: MEM[{address}] = $r{rt} -> {self.memo[address]}")
+
+        elif opcode == "ADDI":
+            rt, rs, immd = instruction[1], instruction[2], instruction[3]
+            self.registers[rt] = self.registers[rs] + immd
+            print(f"ADDI: $r{rt} = $r{rs} + {immd} -> {self.registers[rt]}")
+
+        elif opcode == "SUBI":
+            rt, rs, immd = instruction[1], instruction[2], instruction[3]
+            self.registers[rt] = self.registers[rs] - immd
+            print(f"SUBI: $r{rt} = $r{rs} - {immd} -> {self.registers[rt]}")
+
+        elif opcode == "SLT":
+            rd, rs, rt = instruction[1], instruction[2], instruction[3]
+            self.registers[rd] = 1 if self.registers[rs] < self.registers[rt] else 0
+            print(f"SLT: $r{rd} = ($r{rs} < $r{rt}) -> {self.registers[rd]}")
+
         else:
             print(f"Unknown instruction: {instruction}")
 
@@ -48,13 +75,14 @@ cpu = CPU()
 
 # Sample instruction list (format: "OPCODE", Rd, Rs, Rt)
 instructions = [
-    ("ADD", 1, 2, 3),  # $r1 = $r2 + $r3
-    ("SUB", 1, 2, 3),  # $r1 = $r2 - $r3
+    ("ADDI", 1, 2, 5),  # $r1 = $r2 + 5
+    ("SUBI", 3, 1, 2),  # $r3 = $r1 - 2
+    ("SLT", 4, 1, 3),   # $r4 = ($r1 < $r3)
 ]
 
 # Initialize registers with some values for testing
-cpu.registers[2] = 10  # $r2 = 10
-cpu.registers[3] = 5   # $r3 = 5
+cpu.registers[2] = 10  # Set $r2 = 10
+cpu.registers[3] = 5   # Set $r3 = 5
 
 # Fetch and execute instructions
 while True:  # Continuously fetch and execute until no more instructions
