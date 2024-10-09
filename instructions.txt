@@ -1,0 +1,11 @@
+ADDI 1, 0, 5    # $r1 = $r0 + 5
+ADDI 2, 0, 10   # $r2 = $r0 + 10
+ADD 3, 1, 2     # $r3 = $r1 + $r2 (After the above, $r1 = 5, $r2 = 10)
+SUB 4, 3, 2     # $r4 = $r3 - $r2 (After ADD, $r3 = 15, $r2 = 10)
+ADDI 5, 4, 5    # $r5 = $r4 + 5 (After SUB, $r4 = 5, so $r5 = 10)
+SUBI 6, 5, 3    # $r6 = $r5 - 3 (After ADDI, $r5 = 10, so $r6 = 7)
+SLT 7, 2, 3     # $r7 = ($r2 < $r3) (Comparing $r2 = 10, $r3 = 5, $r7 should be 0)
+BNE 1, 2, 2     # If $r1 != $r2, branch to instruction 2
+BNE 1, 2, -2    # If $r1 != $r2, branch back to instruction 2 (loop)
+LW 8, 0, 0      # $r8 = MEM[$r0 + 0] (Load from address 0)
+SW 8, 0, 0      # MEM[$r0 + 0] = $r8 (Store $r8 at address 0)
