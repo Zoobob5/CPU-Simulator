@@ -11,8 +11,18 @@ class CPU:
             print(f"$r{i}: {self.registers[i]}")
         print("-" * 40)
 
-    def load(self, memo):
+    def load_memory(self, memo):
         self.memo = memo
+
+    def load_instructions(self, filename):
+        with open(filename, 'r') as file:
+            instructions = []
+            for line in file:
+                parts = line.strip().split()
+                # Convert instruction parts into a tuple
+                instruction = (parts[0],) + tuple(map(int, parts[1:]))
+                instructions.append(instruction)
+        return instructions
 
     def fetch(self, instructions):
         if self.pc < len(instructions):  # Check if PC is within bounds
@@ -78,33 +88,27 @@ class CPU:
 
         self.prints()  # Print the state after each instruction execution
 
+
 # Example usage
-cpu = CPU()
+if __name__ == "__main__":
+    cpu = CPU()
 
-# Sample instruction list with examples
-instructions = [
-    ("ADD", 1, 2, 3),  # $r1 = $r2 + $r3 (Assuming $r2 = 10, $r3 = 5)
-    ("SUB", 4, 1, 2),  # $r4 = $r1 - $r2 (After ADD, $r1 = 15, $r2 = 10)
-    ("ADDI", 5, 4, 5),  # $r5 = $r4 + 5 (After SUB, $r4 = 5, so $r5 = 10)
-    ("SUBI", 6, 5, 3),  # $r6 = $r5 - 3 (After ADDI, $r5 = 10, so $r6 = 7)
-    ("SLT", 7, 2, 3),   # $r7 = ($r2 < $r3) (Comparing $r2 = 10, $r3 = 5, $r7 should be 0)
-    ("BNE", 1, 2, 2),   # If $r1 != $r2, branch to instruction 2
-    ("SUBI", 3, 1, 2),  # $r3 = $r1 - 2 (Should be skipped if BNE is taken)
-    ("BNE", 1, 2, -2),  # If $r1 != $r2, branch back to instruction 2 (loop)
-    ("LW", 8, 0, 0),    # $r8 = MEM[$r0 + 0] (Load from address 0)
-    ("SW", 8, 0, 0),    # MEM[$r0 + 0] = $r8 (Store $r8 at address 0)
-]
+    # Load instructions from a file
+    cpu.instructions = cpu.load_instructions('instructions.txt')
 
-# Initialize registers with some values for testing
-cpu.registers[0] = 0  # $r0 is usually hardcoded to 0
-cpu.registers[2] = 10  # Set $r2 = 10
-cpu.registers[3] = 5   # Set $r3 = 5
-cpu.registers[4] = 15  # Set $r4 = 15 (example value for ADD)
-cpu.registers[5] = 10  # Set $r5 = 10 (example value for ADDI)
+    # Optional: Load memory from a file (if needed)
+    # cpu.load_memory('memory.txt')
 
-# Fetch and execute instructions
-while True:  # Continuously fetch and execute until no more instructions
-    instruction = cpu.fetch(instructions)  # Fetch without wrapping in a new list
-    if instruction is None:  # Break if no more instructions
-        break
-    cpu.execute(instruction)
+    # Initialize registers with some values for testing
+    cpu.registers[0] = 0  # $r0 is usually hardcoded to 0
+    cpu.registers[2] = 10  # Set $r2 = 10
+    cpu.registers[3] = 5   # Set $r3 = 5
+    cpu.registers[4] = 15  # Set $r4 = 15 (example value for ADD)
+    cpu.registers[5] = 10  # Set $r5 = 10 (example value for ADDI)
+
+    # Fetch and execute instructions
+    while True:  # Continuously fetch and execute until no more instructions
+        instruction = cpu.fetch(cpu.instructions)  # Fetch without wrapping in a new list
+        if instruction is None:  # Break if no more instructions
+            break
+        cpu.execute(instruction)
