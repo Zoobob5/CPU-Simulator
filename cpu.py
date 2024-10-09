@@ -18,6 +18,7 @@ class CPU:
         with open(filename, 'r') as file:
             instructions = []
             for line in file:
+                line = line.split('#')[0].strip()
                 parts = line.strip().split()
                 # Convert instruction parts into a tuple
                 instruction = (parts[0],) + tuple(map(int, parts[1:]))
@@ -78,7 +79,7 @@ class CPU:
         elif opcode == "BNE":
             rs, rt, offset = instruction[1], instruction[2], instruction[3]
             if self.registers[rs] != self.registers[rt]:  # Branch if not equal
-                self.pc += offset  # Update PC with offset
+                self.pc += offset * 4  # Update PC with offset
                 print(f"BNE: Branching to PC = {self.pc}")
             else:
                 print(f"BNE: Not branching. $r{rs} == $r{rt}.")
